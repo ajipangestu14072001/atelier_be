@@ -1,16 +1,28 @@
 package com.atelier.module.user.service;
 
+import com.atelier.common.util.FCMService;
 import com.atelier.common.util.ResponseUtils;
+import com.atelier.module.user.model.NotificationRequest;
 import com.atelier.module.user.model.User;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class UserService {
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
+    private final FCMService fcmService;
+
+    public UserService(FCMService fcmService) {
+        this.fcmService = fcmService;
+    }
 
     // Empty list for demonstration purposes
     private static final List<User> USERS = new ArrayList<>();
@@ -42,5 +54,13 @@ public class UserService {
 
     public int countUsers() {
         return USERS.size();
+    }
+
+    public void sendNotification(NotificationRequest notificationRequest) {
+            try {
+                fcmService.sendMessageToToken(notificationRequest);
+            } catch (InterruptedException | ExecutionException e) {
+                logger.error("Failed to send notification: " + e.getMessage(), e);
+            }
     }
 }

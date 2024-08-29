@@ -3,3 +3,9 @@ spring:
         name: atelier
     profiles:
         active: dev
+    messages:
+        basename: messages
+        encoding: UTF-8
+        fallback-to-system-locale: false
+firebase:
+    configuration-file: sample-ed0b9-firebase-adminsdk-nfj5x-88a663901b.json
