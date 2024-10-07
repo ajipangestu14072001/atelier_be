@@ -1,0 +1,20 @@
+CREATE TABLE m_user (
+                        id BIGSERIAL PRIMARY KEY,
+                        public_id UUID NOT NULL UNIQUE DEFAULT gen_random_uuid(),
+                        internal_id VARCHAR(10) NOT NULL UNIQUE,
+                        role_internal_id VARCHAR(10) NOT NULL,
+                        first_name VARCHAR(255) NOT NULL,
+                        last_name VARCHAR(255),
+                        email VARCHAR(255) NOT NULL UNIQUE,
+                        phone VARCHAR(15) NOT NULL UNIQUE,
+                        reserved_field_1 VARCHAR(255),
+                        reserved_field_2 VARCHAR(255),
+                        reserved_field_3 VARCHAR(255),
+                        reserved_field_4 TIMESTAMP,
+                        reserved_field_5 TEXT,
+                        created_by VARCHAR(255),
+                        created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        update_by VARCHAR(255),
+                        update_date TIMESTAMP,
+                        FOREIGN KEY (role_internal_id) REFERENCES m_role (internal_id)
+);

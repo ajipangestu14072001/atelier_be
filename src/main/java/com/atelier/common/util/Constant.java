@@ -8,6 +8,6 @@ public class Constant {
             "/v3/api-docs/**",
             "/swagger-ui.html",
             "/swagger-ui/**",
-            "/api/users/**"
+            "/v1/auth/**"
     );
 }

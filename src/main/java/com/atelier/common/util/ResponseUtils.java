@@ -67,10 +67,10 @@ public class ResponseUtils {
         return new ResponseEntity<>(response, status);
     }
 
-    public static ApiResponse<Object> createNotFoundResponse() {
+    public static ApiResponse<Object> createCustomResponse(int status, String message) {
         return new ApiResponse<>(
-                HttpStatus.NOT_FOUND.value(),
-                "Endpoint not found",
+                status,
+                message,
                 new Object()
         );
     }

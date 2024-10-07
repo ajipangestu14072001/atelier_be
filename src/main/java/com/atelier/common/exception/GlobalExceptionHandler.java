@@ -123,4 +123,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<?>> handleUnsupportedOperationException(UnsupportedOperationException ex) {
         return ResponseUtils.createResponse(null, "Not Implemented: " + ex.getMessage(), HttpStatus.NOT_IMPLEMENTED);
     }
+
+    @ExceptionHandler(io.jsonwebtoken.JwtException.class)
+    public ResponseEntity<ApiResponse<?>> handleJwtException(io.jsonwebtoken.JwtException ex) {
+        return ResponseUtils.createResponse(null, "Invalid or malformed JWT token: " + ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
 }
