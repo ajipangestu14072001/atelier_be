@@ -59,6 +59,9 @@ public class MUser {
     @Column(name = "birth_date")
     private LocalDate birthDate;
 
+    @Column(name = "status")
+    private Boolean status;
+
     @Column(name = "reserved_field_1")
     private String reservedField1;
 

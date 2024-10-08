@@ -1,5 +1,7 @@
 package com.atelier.common.util;
 
+import com.atelier.module.user.model.response.CountDTO;
+import com.atelier.module.user.model.response.InactiveDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -48,6 +50,8 @@ public class ResponseUtils {
 
     public static <T> ResponseEntity<PagedResponse<T>> createPagedResponse(
             List<T> data,
+            CountDTO countInfo,
+            InactiveDTO inactiveInfo,
             int totalElements,
             int totalPages,
             int currentPage,
@@ -59,6 +63,8 @@ public class ResponseUtils {
                 status.value(),
                 message,
                 getDefaultListIfNull(data),
+                countInfo,
+                inactiveInfo,
                 totalElements,
                 totalPages,
                 currentPage,
