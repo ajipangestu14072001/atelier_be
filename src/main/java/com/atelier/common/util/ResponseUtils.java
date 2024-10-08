@@ -2,13 +2,16 @@ package com.atelier.common.util;
 
 import com.atelier.module.user.model.response.CountDTO;
 import com.atelier.module.user.model.response.InactiveDTO;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class ResponseUtils {
 
@@ -79,6 +82,14 @@ public class ResponseUtils {
                 message,
                 new Object()
         );
+    }
+
+    public static void handleUnauthorizedResponse(HttpServletResponse response, String message) throws IOException {
+        ResponseEntity<ApiResponse<?>> customResponse = createResponse(null, message, HttpStatus.UNAUTHORIZED);
+        String jsonResponse = convertApiResponseToJson(Objects.requireNonNull(customResponse.getBody()));
+        response.setStatus(customResponse.getStatusCode().value());
+        response.setContentType("application/json");
+        response.getWriter().write(jsonResponse);
     }
 
     public static String convertApiResponseToJson(ApiResponse<?> apiResponse) {
