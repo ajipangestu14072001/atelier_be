@@ -8,12 +8,20 @@ import com.atelier.module.user.model.entity.MRole;
 import com.atelier.module.user.model.entity.MUser;
 import com.atelier.module.user.model.request.DetailUserRequest;
 import com.atelier.module.user.model.request.UpdateUserRequest;
+import com.atelier.module.user.model.response.UploadProfileImageResponse;
 import com.atelier.module.user.model.response.UserDetailResponse;
 import com.atelier.module.user.repository.MRoleRepository;
 import com.atelier.module.user.repository.MUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -101,6 +109,36 @@ public class UserService {
             return isUpdated;
         }
         return false;
+    }
+
+    public UploadProfileImageResponse uploadProfileImage(MultipartFile file) throws IOException {
+        String uploadDir = "src/main/resources/static/uploads/profile/";
+        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+        Path filePath = Paths.get(uploadDir + fileName);
+        Files.createDirectories(filePath.getParent());
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        System.out.println("File uploaded to: " + filePath);
+
+        String fullPath = "/uploads/profile/" + fileName;
+        return new UploadProfileImageResponse(fullPath);
+    }
+
+
+    public UploadProfileImageResponse getUserById(String userId) {
+        Optional<MUser> userOptional = mUserRepository.findByPublicId(UUID.fromString(userId));
+
+        if (userOptional.isPresent()) {
+            MUser user = userOptional.get();
+            String profileImagePath = user.getProfilePicture();
+
+            String fullPath = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path(profileImagePath)
+                    .toUriString();
+
+            return new UploadProfileImageResponse(fullPath);
+        } else {
+            return new UploadProfileImageResponse("User not found");
+        }
     }
 
     public UserDetailResponse getUserDetails(DetailUserRequest detailUserRequest) {

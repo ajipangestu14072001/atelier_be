@@ -32,6 +32,14 @@ spring:
     multipart:
       max-file-size: 5MB
       max-request-size: 5MB
+
+  mvc:
+    static-path-pattern: /uploads/**
+  web:
+    resources:
+      static-locations: classpath:/static/
+
+
 rsa:
   private-key: classpath:certs/private-keyy.pem
   public-key: classpath:certs/public-key.pem
@@ -39,6 +47,8 @@ rsa:
 logging:
   level:
     root: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
 swagger:
   url: "http://localhost:8080"

@@ -7,14 +7,24 @@ import com.atelier.module.user.model.request.CheckAccountRequest;
 import com.atelier.module.user.model.request.CheckPinRequest;
 import com.atelier.module.user.model.request.DetailUserRequest;
 import com.atelier.module.user.model.request.UpdateUserRequest;
+import com.atelier.module.user.model.response.UploadProfileImageResponse;
 import com.atelier.module.user.model.response.UserDetailResponse;
 import com.atelier.module.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 @RestController
@@ -67,6 +77,31 @@ public class UserController {
             return ResponseUtils.createResponse(userDetailResponse, "User retrieved successfully", HttpStatus.OK);
         } else {
             return ResponseUtils.createResponse(null, "User not found", HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/uploadProfileImage")
+    public ResponseEntity<ApiResponse<?>> uploadProfileImage(@RequestParam("file") MultipartFile file) {
+        try {
+            UploadProfileImageResponse responseData = userService.uploadProfileImage(file);
+            return ResponseUtils.createResponse(responseData, "Profile image uploaded successfully.", HttpStatus.OK);
+        } catch (IOException e) {
+            return ResponseUtils.createResponse(null, "Error uploading profile image: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/showProfile")
+    public ResponseEntity<ApiResponse<?>> getUserProfile(@RequestBody DetailUserRequest userId) {
+        try {
+            UploadProfileImageResponse userResponse = userService.getUserById(userId.getUserID());
+
+            if (userResponse != null) {
+                return ResponseUtils.createResponse(userResponse, "User profile retrieved successfully", HttpStatus.OK);
+            } else {
+                return ResponseUtils.createResponse(null, "User not found", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return ResponseUtils.createResponse(null, "Error retrieving user profile: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
