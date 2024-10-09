@@ -2,6 +2,7 @@ package com.atelier.module.user.model.entity;
 
 import com.atelier.module.auth.model.entity.TUserAuth;
 import com.atelier.module.auth.model.entity.TUserSession;
+import com.atelier.module.user.model.AccountStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -62,6 +63,13 @@ public class MUser {
     @Column(name = "status")
     private Boolean status;
 
+    @Column(name = "note")
+    private String note;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "account_status")
+    private AccountStatus accountStatus;
+
     @Column(name = "reserved_field_1")
     private String reservedField1;
 
@@ -95,6 +103,5 @@ public class MUser {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TUserAuth> userAuths;
 
-    // Getters and Setters
 }
 

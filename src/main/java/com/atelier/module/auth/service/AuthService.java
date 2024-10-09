@@ -85,6 +85,8 @@ public class AuthService {
         newUser.setUsername(request.getUserName());
         newUser.setRole(role);
         newUser.setCreatedDate(LocalDateTime.now());
+        newUser.setCreatedBy("system");
+        newUser.setStatus(true);
         mUserRepository.save(newUser);
 
         TUserAuth newUserAuth = new TUserAuth();

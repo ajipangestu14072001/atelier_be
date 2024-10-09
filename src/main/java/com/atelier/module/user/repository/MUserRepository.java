@@ -13,6 +13,7 @@ import java.util.UUID;
 public interface MUserRepository extends JpaRepository<MUser, Long> {
     Optional<MUser> findByEmailOrPhone(String email, String phone);
     Optional<MUser> findByInternalId(String internalId);
+    Optional<MUser> findByPublicId(UUID publicId);
     Optional<MUser> findByUsername(String username);
     Optional<MUser> findByEmail(String email);
     Page<MUser> findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(String username, String email, Pageable pageable);

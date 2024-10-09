@@ -15,10 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,7 +41,7 @@ public class UserService {
     }
 
     public boolean updateUser(UpdateUserRequest updateUserRequest) {
-        Optional<MUser> optionalUser = mUserRepository.findByInternalId(updateUserRequest.getUserID());
+        Optional<MUser> optionalUser = mUserRepository.findByPublicId(UUID.fromString(updateUserRequest.getUserID()));
 
         if (optionalUser.isPresent()) {
             MUser user = optionalUser.get();
@@ -107,7 +104,7 @@ public class UserService {
     }
 
     public UserDetailResponse getUserDetails(DetailUserRequest detailUserRequest) {
-        Optional<MUser> optionalUser = mUserRepository.findByInternalId(detailUserRequest.getUserID());
+        Optional<MUser> optionalUser = mUserRepository.findByPublicId(UUID.fromString(detailUserRequest.getUserID()));
 
         if (optionalUser.isPresent()) {
             MUser user = optionalUser.get();
@@ -157,15 +154,6 @@ public class UserService {
         } else {
             return null;
         }
-    }
-
-
-    private List<String> getUserRoles(MUser user) {
-        List<String> roles = new ArrayList<>();
-        if (user.getRole() != null) {
-            roles.add(user.getRole().getRole());
-        }
-        return roles;
     }
 
 }

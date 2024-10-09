@@ -1,11 +1,14 @@
 package com.atelier.module.user.controller;
 
+import com.atelier.common.util.ApiResponse;
 import com.atelier.common.util.PagedResponse;
 import com.atelier.common.util.ResponseUtils;
+import com.atelier.module.user.model.request.DetailUserRequest;
 import com.atelier.module.user.model.request.SearchRequest;
 import com.atelier.module.user.model.response.CountDTO;
 import com.atelier.module.user.model.response.CustomerManagementResponse;
 import com.atelier.module.user.model.response.InactiveDTO;
+import com.atelier.module.user.model.response.UserDetailResponse;
 import com.atelier.module.user.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -68,6 +71,17 @@ public class CustomerManagementController {
                 "Search results retrieved successfully",
                 HttpStatus.OK
         );
+    }
+
+    @PostMapping("customer/detail")
+    public ResponseEntity<ApiResponse<?>> getUserDetails(@RequestBody DetailUserRequest detailUserRequest) {
+        UserDetailResponse userDetailResponse = customerManagementService.getUserDetails(detailUserRequest);
+
+        if (userDetailResponse != null) {
+            return ResponseUtils.createResponse(userDetailResponse, "User retrieved successfully", HttpStatus.OK);
+        } else {
+            return ResponseUtils.createResponse(null, "User not found", HttpStatus.NOT_FOUND);
+        }
     }
 
 }
