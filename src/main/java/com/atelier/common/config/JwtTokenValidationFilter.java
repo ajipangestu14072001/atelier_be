@@ -44,7 +44,6 @@ public class JwtTokenValidationFilter extends OncePerRequestFilter {
             }
 
             try {
-                // Extract username from token
                 String username = tokenService.extractUsername(token);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 

@@ -1,7 +1,10 @@
 package com.atelier.module.user.service;
 
 import com.atelier.module.auth.model.entity.TUserAuth;
+import com.atelier.module.auth.model.response.PermissionResponse;
+import com.atelier.module.auth.model.response.RoleResponse;
 import com.atelier.module.auth.repository.TUserAuthRepository;
+import com.atelier.module.user.model.entity.MRole;
 import com.atelier.module.user.model.entity.MUser;
 import com.atelier.module.user.model.request.DetailUserRequest;
 import com.atelier.module.user.model.request.UpdateUserRequest;
@@ -16,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -108,14 +112,34 @@ public class UserService {
         if (optionalUser.isPresent()) {
             MUser user = optionalUser.get();
             UserDetailResponse userDetailResponse = new UserDetailResponse();
+
             userDetailResponse.setUsername(user.getUsername());
             userDetailResponse.setEmail(user.getEmail());
             userDetailResponse.setFullName(user.getFirstName() + " " + user.getLastName());
-            userDetailResponse.setPhoneNumber(user.getPhone()  != null ? user.getPhone() : "");
+            userDetailResponse.setPhoneNumber(user.getPhone() != null ? user.getPhone() : "");
             userDetailResponse.setIdCardNumber(user.getIdCardNumber() != null ? user.getIdCardNumber() : "");
+
             LocalDate birthDate = user.getBirthDate();
             userDetailResponse.setBirthDate(birthDate != null ? birthDate.toString() : "");
-            userDetailResponse.setRole(getUserRoles(user));
+
+            MRole role = user.getRole();
+            RoleResponse roleResponse = new RoleResponse();
+            roleResponse.setRoleId(role.getPublicId().toString());
+            roleResponse.setRoleName(role.getRole());
+
+            List<PermissionResponse> permissionResponses = role.getPermissions()
+                    .stream()
+                    .map(permission -> new PermissionResponse(
+                            permission.getIdentifier() != null ? permission.getIdentifier() : "",
+                            permission.getName() != null ? permission.getName() : "",
+                            permission.getNotes() != null ? permission.getNotes() : "",
+                            permission.getType() != null ? permission.getType() : ""
+                    ))
+                    .collect(Collectors.toList());
+
+            roleResponse.setPermission(permissionResponses);
+
+            userDetailResponse.setRole(roleResponse);
 
             Optional<TUserAuth> optionalUserAuth = userAuthRepository.findByUser(user);
             if (optionalUserAuth.isPresent()) {
@@ -124,6 +148,7 @@ public class UserService {
             } else {
                 userDetailResponse.setActiveBiometric(false);
             }
+
             userDetailResponse.setProfilePicture(user.getProfilePicture());
             userDetailResponse.setAddress(new ArrayList<>());
             userDetailResponse.setTransactionHistory(new ArrayList<>());
@@ -133,6 +158,7 @@ public class UserService {
             return null;
         }
     }
+
 
     private List<String> getUserRoles(MUser user) {
         List<String> roles = new ArrayList<>();

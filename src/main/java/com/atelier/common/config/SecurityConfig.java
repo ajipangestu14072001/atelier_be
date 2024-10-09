@@ -38,6 +38,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     @Autowired
+    private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
+    @Autowired
     private RsaKeyConfigProperties rsaKeyConfigProperties;
 
     @Autowired
@@ -65,6 +68,7 @@ public class SecurityConfig {
                     auth.requestMatchers("/v1/auth/**").permitAll();
                     auth.anyRequest().authenticated();
                 })
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(customAuthenticationEntryPoint))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())))
                 .addFilterBefore(new JwtTokenValidationFilter(tokenService, authService::loadUserByUsername, authService), UsernamePasswordAuthenticationFilter.class)

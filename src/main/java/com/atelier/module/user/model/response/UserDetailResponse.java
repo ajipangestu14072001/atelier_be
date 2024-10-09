@@ -1,5 +1,6 @@
 package com.atelier.module.user.model.response;
 
+import com.atelier.module.auth.model.response.RoleResponse;
 import lombok.Data;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public class UserDetailResponse {
     private String idCardNumber;
     private String birthDate;
     private Object membership;
-    private List<String> role;
+    private RoleResponse role;
     private String profilePicture;
     private boolean activeBiometric;
     private List<Object> address;

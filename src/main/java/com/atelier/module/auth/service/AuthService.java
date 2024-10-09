@@ -3,6 +3,8 @@ package com.atelier.module.auth.service;
 import com.atelier.module.auth.model.*;
 import com.atelier.module.auth.model.request.LoginRequest;
 import com.atelier.module.auth.model.request.RegisterRequest;
+import com.atelier.module.auth.model.response.PermissionResponse;
+import com.atelier.module.auth.model.response.RoleResponse;
 import com.atelier.module.user.model.request.ForgotPinRequest;
 import com.atelier.module.user.repository.MRoleRepository;
 import com.atelier.module.user.repository.MUserRepository;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthService {
@@ -148,11 +151,28 @@ public class AuthService {
         String accessToken = tokenService.generateAccessToken(user);
         String refreshToken = tokenService.generateRefreshToken(user);
 
+        MRole role = user.getRole();
+        RoleResponse roleResponse = new RoleResponse();
+        roleResponse.setRoleId(role.getPublicId().toString());
+        roleResponse.setRoleName(role.getRole());
+
+        List<PermissionResponse> permissionResponses = role.getPermissions()
+                .stream()
+                .map(permission -> new PermissionResponse(
+                        permission.getIdentifier() != null ? permission.getIdentifier() : "",
+                        permission.getName() != null ? permission.getName() : "",
+                        permission.getNotes() != null ? permission.getNotes() : "",
+                        permission.getType() != null ? permission.getType() : ""
+                ))
+                .collect(Collectors.toList());
+
+        roleResponse.setPermission(permissionResponses);
+
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setUserID(user.getInternalId());
         loginResponse.setUsername(user.getUsername());
         loginResponse.setEmail(user.getEmail());
-        loginResponse.setRole(getUserRoles(user));
+        loginResponse.setRole(roleResponse); // Set the constructed role response
         loginResponse.setToken(accessToken);
         loginResponse.setRefreshToken(refreshToken);
         loginResponse.setExpired(3600);
@@ -160,6 +180,7 @@ public class AuthService {
 
         return loginResponse;
     }
+
 
     private List<String> getUserRoles(MUser user) {
         List<String> roles = new ArrayList<>();

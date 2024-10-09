@@ -64,5 +64,8 @@ public class MRole {
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MUser> users;
 
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<MPermission> permissions;
+
 }
 
