@@ -6,10 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface TUserAuthRepository extends JpaRepository<TUserAuth, Long> {
     Optional<TUserAuth> findByPassword(String password);
     Optional<TUserAuth> findByUser(MUser user);
+    Optional<TUserAuth> findByUserPublicId(UUID publicId);
 }
 

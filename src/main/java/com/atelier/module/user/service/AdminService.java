@@ -1,8 +1,12 @@
 package com.atelier.module.user.service;
 
+import com.atelier.module.auth.model.entity.TUserAuth;
+import com.atelier.module.auth.model.entity.TUserSession;
 import com.atelier.module.auth.model.request.AdminRequest;
 import com.atelier.module.auth.model.response.PermissionResponse;
 import com.atelier.module.auth.model.response.RoleResponse;
+import com.atelier.module.auth.repository.TUserAuthRepository;
+import com.atelier.module.auth.repository.TUserSessionRepository;
 import com.atelier.module.user.model.AccountStatus;
 import com.atelier.module.user.model.entity.MRole;
 import com.atelier.module.user.model.entity.MUser;
@@ -14,6 +18,7 @@ import com.atelier.module.user.model.response.CountDTO;
 import com.atelier.module.user.model.response.InactiveDTO;
 import com.atelier.module.user.repository.MRoleRepository;
 import com.atelier.module.user.repository.MUserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,13 +38,18 @@ public class AdminService {
 
     private final MUserRepository mUserRepository;
     private final MRoleRepository mRoleRepository;
+    private final TUserAuthRepository tUserAuthRepository;
+    private final TUserSessionRepository tUserSessionRepository;
 
     @Autowired
-    public AdminService(MUserRepository mUserRepository, MRoleRepository mRoleRepository) {
+    public AdminService(MUserRepository mUserRepository, MRoleRepository mRoleRepository, TUserAuthRepository tUserAuthRepository, TUserSessionRepository tUserSessionRepository) {
         this.mUserRepository = mUserRepository;
         this.mRoleRepository = mRoleRepository;
+        this.tUserAuthRepository = tUserAuthRepository;
+        this.tUserSessionRepository = tUserSessionRepository;
     }
 
+    @Transactional
     public void addAdmin(AdminRequest adminRequest) {
         MRole role = mRoleRepository.findByRole(adminRequest.getRole())
                 .orElseThrow(() -> new IllegalArgumentException("Role not found"));
@@ -47,7 +57,6 @@ public class AdminService {
         String[] nameParts = adminRequest.getFullName().split("\\s+");
         String firstName = nameParts[0];
         String lastName = "";
-
         if (nameParts.length > 1) {
             lastName = String.join(" ", Arrays.copyOfRange(nameParts, 1, nameParts.length));
         }
@@ -61,8 +70,28 @@ public class AdminService {
         admin.setCreatedDate(LocalDateTime.now());
         admin.setCreatedBy("system");
         admin.setStatus(true);
-
         mUserRepository.save(admin);
+        TUserAuth adminAuth = new TUserAuth();
+        adminAuth.setUser(admin);
+        adminAuth.setPassword("123456");
+        adminAuth.setInternalId(UUID.randomUUID().toString());
+        adminAuth.setTermCondition(true);
+        adminAuth.setCreatedDate(LocalDateTime.now());
+
+        tUserAuthRepository.save(adminAuth);
+
+        createUserSession(admin);
+    }
+
+    private void createUserSession(MUser user) {
+        TUserSession newUserSession = new TUserSession();
+        newUserSession.setUser(user);
+        newUserSession.setSessionId(UUID.randomUUID().toString());
+        newUserSession.setIsActive(true);
+        newUserSession.setLastActivity(LocalDateTime.now());
+        newUserSession.setInternalId(UUID.randomUUID().toString());
+        newUserSession.setCreatedDate(LocalDateTime.now());
+        tUserSessionRepository.save(newUserSession);
     }
 
     public List<AdminManagementResponse> getAdmins(int page, int size, String field, String order) {

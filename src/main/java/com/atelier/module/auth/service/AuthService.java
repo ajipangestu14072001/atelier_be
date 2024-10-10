@@ -1,6 +1,7 @@
 package com.atelier.module.auth.service;
 
 import com.atelier.module.auth.model.*;
+import com.atelier.module.auth.model.request.ChangePinRequest;
 import com.atelier.module.auth.model.request.LoginRequest;
 import com.atelier.module.auth.model.request.RegisterRequest;
 import com.atelier.module.auth.model.response.PermissionResponse;
@@ -183,15 +184,6 @@ public class AuthService {
         return loginResponse;
     }
 
-
-    private List<String> getUserRoles(MUser user) {
-        List<String> roles = new ArrayList<>();
-        if (user.getRole() != null) {
-            roles.add(user.getRole().getRole());
-        }
-        return roles;
-    }
-
     private boolean validateBiometric(String biometricTemplate, String providedData) {
         return true;
     }
@@ -245,16 +237,25 @@ public class AuthService {
             Optional<TUserAuth> userAuthOptional = tUserAuthRepository.findByUser(user);
 
             if (userAuthOptional.isPresent()) {
-                String resetToken = UUID.randomUUID().toString();
-
-                String resetLink = "http://yourdomain.com/reset-pin?token=" + resetToken;
+                String userId = user.getPublicId().toString();
+                String resetLink = "http://yourdomain.com/reset-pin?userId=" + userId;
 
                 String subject = "Reset Your PIN";
                 String content = "To reset your PIN, please click the link below:\n" + resetLink;
                 sendEmail(request.getEmail(), subject, content);
-
-                TokenStore.storeTokenForUser(userAuthOptional.get().getInternalId(), resetToken);
             }
+        }
+    }
+
+    public void updateForgotPin(ChangePinRequest request) {
+        Optional<TUserAuth> userAuthOptional = tUserAuthRepository.findByUserPublicId(UUID.fromString(request.getUserID()));
+        if (userAuthOptional.isPresent()) {
+            TUserAuth userAuth = userAuthOptional.get();
+
+            userAuth.setPassword(request.getNewPin());
+            tUserAuthRepository.save(userAuth);
+        } else {
+            throw new IllegalArgumentException("User not found.");
         }
     }
 

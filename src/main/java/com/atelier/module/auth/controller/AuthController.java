@@ -2,6 +2,7 @@ package com.atelier.module.auth.controller;
 
 import com.atelier.common.util.ApiResponse;
 import com.atelier.common.util.ResponseUtils;
+import com.atelier.module.auth.model.request.ChangePinRequest;
 import com.atelier.module.auth.model.request.LoginRequest;
 import com.atelier.module.auth.model.request.RegisterRequest;
 import com.atelier.module.auth.model.response.LoginResponse;
@@ -46,6 +47,12 @@ public class AuthController {
     public ResponseEntity<ApiResponse<?>> forgotPin(@RequestBody @Valid ForgotPinRequest request) {
         authService.forgotPin(request);
         return ResponseUtils.createResponse(null, "Reset link sent to your email.", HttpStatus.OK);
+    }
+
+    @PutMapping("/changePin")
+    public ResponseEntity<ApiResponse<?>> changePin(@RequestBody @Valid ChangePinRequest request) {
+        authService.updateForgotPin(request);
+        return ResponseUtils.createResponse(null, "PIN updated successfully.", HttpStatus.OK);
     }
 
 }
